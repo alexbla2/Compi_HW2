@@ -1,7 +1,8 @@
 %{
 #include <stdio.h>
 #include <string.h>
-#include <tokens.h>
+#include "tokens.h"
+
 void showToken(char* );
 int oct2int(char* oct, int len);
 int hex2int(char* oct, int len);
@@ -23,44 +24,44 @@ octdig 		([0-7])
 %%
 
 
-"---" 	return tokens::STARTSTRUCT;//showToken("STARTSTRUCT");
-"..." 	return tokens::ENDSTRUCT;//showToken("ENDSTRUCT");
-"[" 	return tokens::LLIST;//showToken("LLIST");
-"]"	    return tokens::RLIST;//showToken("RLIST");
-"{" 	return tokens::LDICT;//showToken("LDICT");
-"}"	    return tokens::RDICT;//showToken("RDICT");
-":" 	return tokens::KEY;//showToken("KEY");
-"?"	    return tokens::COMPLEXKEY;//showToken("COMPLEXKEY");
-"-"	    return tokens::ITEM;//showToken("ITEM");
-","	    return tokens::COMMA;//showToken("COMMA");
-"!!"{letter}+			return tokens::TYPE;//showToken("TYPE");
+"---" 	return STARTSTRUCT;//showToken("STARTSTRUCT");
+"..." 	return ENDSTRUCT;//showToken("ENDSTRUCT");
+"[" 	return LLIST;//showToken("LLIST");
+"]"	    return RLIST;//showToken("RLIST");
+"{" 	return LDICT;//showToken("LDICT");
+"}"	    return RDICT;//showToken("RDICT");
+":" 	return KEY;//showToken("KEY");
+"?"	    return COMPLEXKEY;//showToken("COMPLEXKEY");
+"-"	    return ITEM;//showToken("ITEM");
+","	    return COMMA;//showToken("COMMA");
+"!!"{letter}+			return TYPE;//showToken("TYPE");
 
 \#.* //showToken("COMMENT");
-true			return tokens::TRUE;//showToken("TRUE");
-false			return tokens::FALSE;//showToken("FALSE");
-("+"|"-")?{digit}+|0x{hexdig}*|0o{octdig}*	return tokens::INTEGER;//showToken("INTEGER");
-(("+"|"-")?{digit}*"."{digit}*)|(("+"|"-")?{digit}*"."{digit}*e("+"|"-"){digit}+)|".inf"|".NaN" 	return tokens::REAL;//showToken("REAL");
+true			return TRUE;//showToken("TRUE");
+false			return FALSE;//showToken("FALSE");
+("+"|"-")?{digit}+|0x{hexdig}*|0o{octdig}*	return INTEGER;//showToken("INTEGER");
+(("+"|"-")?{digit}*"."{digit}*)|(("+"|"-")?{digit}*"."{digit}*e("+"|"-"){digit}+)|".inf"|".NaN" 	return REAL;//showToken("REAL");
 
 \' BEGIN(smpstring); yymore();
 <smpstring>[^']* yymore();
-<smpstring>\' return tokens::STRING;//showToken("STRING");BEGIN(0);
+<smpstring>\' return STRING;//showToken("STRING");BEGIN(0);
 <smpstring><<EOF>> printf("Error unclosed string\n");exit(0);
 
-{letter}+{alphaNum}* 	return tokens::VAL;//showToken("VAL");
-"&"{letter}+	return tokens::DECLARATION;//showToken("DECLARATION");
-"*"{letter}+	return tokens::DEREFERENCE;//showToken("DEREFERENCE");
+{letter}+{alphaNum}* 	return VAL;//showToken("VAL");
+"&"{letter}+	return DECLARATION;//showToken("DECLARATION");
+"*"{letter}+	return DEREFERENCE;//showToken("DEREFERENCE");
 
 \" BEGIN(string);yymore();
 <string>\\ BEGIN(escape);yymore();
 <escape>\\|\"|a|b|e|f|n|r|t|v|0|x{hexdig}{hexdig} BEGIN(string);yymore();
 <escape>. printf("Error undefined escape sequence %c\n",yytext[yyleng-1]);exit(0);
-<string>\" return tokens::STRING;//showToken("STRING");BEGIN(0);
+<string>\" return STRING;//showToken("STRING");BEGIN(0);
 <string>{newline} yymore();
 <string>{whitespace} yymore();
 <string>[[:print:]] yymore();
 <string><<EOF>> printf("Error unclosed string\n");exit(0);
 
-<<EOF>> return tokens::EOF;//showToken("EOF"); exit(0);
+<<EOF>> return EOF;//showToken("EOF"); exit(0);
 {newline}|{whitespace}	;
 .	printf("Error %s\n", yytext); exit(0);
 %%
@@ -136,7 +137,7 @@ void showToken(char* str){
 				yytext[yyleng - 1] = '\0';
 				yytext++;
 			}else if(yytext[0] == '"'){   //string " stype
-				char* buff=malloc(yyleng*(sizeof(*buff)+1));
+				char* buff=(char*)malloc(yyleng*(sizeof(*buff)+1));
 				int i=0, j=0;
 				for( ; i < yyleng-1 ; i++){
 				
