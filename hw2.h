@@ -4,11 +4,39 @@
 #include "tokens.h"
 #include "grammar.h"
 
+#define NUMOFRULES 22
+
+bool aux_nullable(bool *array, std::vector<int> vecG){
+    for(int i=0;i<vecG.size(); i++){
+        if(vecG[i] < NONTERMINAL_ENUM_SIZE && array[vecG[i]]==false){
+            return false;
+        }
+    }
+    return true;
+}
+
 /**
  * determines which variables are nullable, i.e. can produce an empty word
  * calls print_nullable when finished
  */
-void compute_nullable();
+void compute_nullable(){
+    std::vector<bool> nullable;
+    bool array[NONTERMINAL_ENUM_SIZE]={0};
+    bool changed=true;
+    while(changed) {
+            changed=false;
+            for (int i=0;i<NUMOFRULES;i++) {
+                if (grammar[i].rhs == std::vector<int>() || aux_nullable(array,grammar[i].rhs)==true ){
+                        array[grammar[i].lhs]=true;
+                        changed=true;
+                }
+            }
+    }
+    for(i=0; i<NONTERMINAL_ENUM_SIZE; i++){
+            res.push_back(array[i]);
+        }
+    print_nullable(nullable);
+}
 
 /**
  * computes first for all nonterminal (see nonterminal enum in grammar.h)
