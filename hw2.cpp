@@ -9,6 +9,10 @@ bool aux_nullable(bool *array, std::vector<int>& vecG){
 	//std::cout << "nullable" << std::endl ;
 	
     for(int i=0;i<vecG.size(); i++){
+		if(vecG[i] > NONTERMINAL_ENUM_SIZE)
+			return false;
+		
+		//std::cout << "vecg[i] = " << vecG[i] << ", i=" << i << std::endl;
         if(vecG[i] < NONTERMINAL_ENUM_SIZE && array[vecG[i]]==false){
             return false;
         }
@@ -23,16 +27,23 @@ void compute_nullable(){
     bool array[NONTERMINAL_ENUM_SIZE]={false};
     bool changed=true;
 	std::cout << "point2" << std::endl ;
-    while(changed) {
-            changed=false;
-            for (int i=0;i<NUMOFRULES;i++) {
-				//grammar[i].rhs == std::vector<int>() ||
-                if ( aux_nullable(array,grammar[i].rhs)==true ){
-						std::cout << "trueeeeee" << std::endl ;
-                        array[grammar[i].lhs]=true;
-                        changed=true;
-                }
-            }
+	
+	for (int i=0;i<NUMOFRULES;i++) {
+		if ( grammar[i].rhs == std::vector<int>() ){
+				std::cout << "true111111111111111111" << std::endl ;
+				array[grammar[i].lhs]=true;
+		}
+	}
+	
+	while(changed) {
+		changed=false;
+		for (int i=0;i<NUMOFRULES;i++) {
+			if (  array[grammar[i].lhs]==false && aux_nullable(array,grammar[i].rhs)==true  ){
+					std::cout << "true2222222222222222222 i= "<< i << std::endl ;
+					array[grammar[i].lhs]=true;
+					changed=true;
+			}
+		}
     }
 	
 	std::cout << "point3" << std::endl ;

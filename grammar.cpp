@@ -119,6 +119,10 @@ std::vector <grammar_rule> make_grammar() {
     int rule3[] = {STARTSTRUCT, SItems, ENDSTRUCT};
     res.push_back(grammar_rule(Structure, std::vector<int>(rule3, rule3 + 3)));
 
+   
+	//res.push_back(grammar_rule(Structure, std::vector<int>(1, SItems)));
+	
+	
     int rule4[] = {Collection, SItems};
     res.push_back(grammar_rule(SItems, std::vector<int>(rule4, rule4 + 2)));
     res.push_back(grammar_rule(SItems, std::vector<int>()));
