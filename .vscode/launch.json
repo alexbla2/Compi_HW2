@@ -10,7 +10,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/a.exe",
-            "args": ["-nullable"],
+            "args": ["-first"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
