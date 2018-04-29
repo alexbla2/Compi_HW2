@@ -52,7 +52,8 @@ void compute_nullable(){
 void compute_first(){
 
 	std::vector<std::set<tokens> > vec;	//vec to return
-	std::set<tokens> array[NUMOFVALS]; //array of sets to copy
+	std::set<tokens>* array= new std::set<tokens>[NUMOFVALS]; //array of sets to copy
+	//check if ok
 	bool arrayFirst[NUMOFVALS]={false};	//array of all firsts
 	bool nullable[NUMOFVALS]={false};//check all nullable before 
 	bool changed=true;
@@ -81,22 +82,33 @@ void compute_first(){
 						break;
 					}
 				}
-				if(arrayFirst[grammar[i].lhs] == false && arrayFirst[grammar[i].rhs[j]] == true){ //there is a first rule to our first right
+				//arrayFirst[grammar[i].lhs] == false &&
+				//if( arrayFirst[grammar[i].rhs[j]] == true){ //there is a first rule to our first right
 					//array[grammar[i].lhs].insert(array[grammar[i].rhs[j]]);
-					std::set<tokens> set=array[grammar[i].rhs[j]];
-					for(std::set<tokens>::iterator it=set.begin(); it!=set.end();it++){//add the first to the left val first
-						array[grammar[i].lhs].insert(tokens(*it));
-					}
-					arrayFirst[grammar[i].lhs]=true; //mark who is the val that are first gen of first
+				std::set<tokens>* set=&array[grammar[i].rhs[j]];
+				std::set<tokens>* destSet=&array[grammar[i].lhs];
+				//std::cout << "grammar[" << i << "].lhs =" << grammar[i].lhs << std::endl;
+				int oldSize=destSet->size();
+				for(std::set<tokens>::iterator it=set->begin(); it!=set->end();it++){//add the first to the left val first
+					destSet->insert(tokens(*it));
+				}
+			//	arrayFirst[grammar[i].lhs]=true; //mark who is the val that are first gen of first
+				int newSize=destSet->size();
+				if(oldSize != newSize){
 					changed=true;
-				}	
+				}
+				//-------------make a pointer to the set and not local!!!!!!!!!!!!!!!!!!!!
+
+
+				//}	
 		}
 	}
 	for (int i=0;i<NONTERMINAL_ENUM_SIZE;i++) {		//for all nonterminal
-		if(arrayFirst[i]==true){
+		//if(arrayFirst[i]==true){
 			vec.push_back(array[i]);
-		}
+		//}
 	}
+	delete[] array;
 	print_first(vec);
 }
 
