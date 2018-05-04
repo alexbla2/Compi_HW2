@@ -181,11 +181,11 @@ void compute_follow(){
 }
 
 void compute_select(){
-	/*std::vector<std::set<tokens> > vec;	//vec to return
+	std::vector<std::set<tokens> > vec;	//vec to return
 	bool nullable[NUMOFVALS]={false};//check all nullable before 
-	std::set<tokens>* firstArray= new std::set<tokens>[NUMOFVALS]; //array of sets to copy
-	std::set<tokens> followArray[NUMOFVALS]; //array of sets of FIRST
-	std::set<tokens> selectArray[NUMOFRULES]; //array of sets of SELECT to copy (for each *rule*)
+	std::set<tokens>* firstArray=new std::set<tokens>[NUMOFVALS]; //array of sets to copy
+	std::set<tokens>* followArray=new std::set<tokens>[NUMOFVALS]; //array of sets of FIRST
+	std::set<tokens>* selectArray=new std::set<tokens>[NUMOFRULES]; //array of sets of SELECT to copy (for each *rule*)
 	bool changed=true;
 
 	fillNullableArray(nullable);		//**fill the AFIS array**
@@ -194,25 +194,29 @@ void compute_select(){
 	while(changed){
 		changed=false;
 		for (int i=0;i<NUMOFRULES;i++) { //check all the rules
-				std::set<tokens> destSet=selectArray[i];			//the DEST set to add to
+				std::set<tokens>* destSet=&selectArray[i];			//the DEST set to add to
 				int rightSideAfis=0;
 				for(int j=0;j<grammar[i].rhs.size();j++){ //for each (VAR/terminal) in the right side of the rule
 					if(nullable[grammar[i].rhs[j]] == true ){	//checks if all the right side is AFIS
 							rightSideAfis++;
 					}
+				}
 				if(grammar[i].rhs.size() == rightSideAfis || grammar[i].rhs == std::vector<int>()){	//the right side is AFIS
-					std::set<tokens> followSet=followArray[grammar[i].lhs] //we take the follow of the LEFT SIDE
+					std::set<tokens>* set=&followArray[grammar[i].lhs];  //we take the follow of the LEFT SIDE
 					int oldSize=destSet->size(); //check size before adding
-					for(std::set<tokens>::iterator it=followSet->begin(); it!=followSet->end();it++){//add the first to the left val first
+					for(std::set<tokens>::iterator it=set->begin(); it!=set->end();it++){//add the first to the left val first
 						destSet->insert(tokens(*it));
 					}
 					int newSize=destSet->size();
 					if(oldSize != newSize){
 						changed=true;		//there are new members in the select - change have been made
 					}
+					if(grammar[i].rhs == std::vector<int>()){
+						continue;
+					}
 				}// insert the FIRST of the right rule
 
-				std::set<tokens> firstSet=firstArray[grammar[i].rhs[0]] //we take the FIRST of the RIGHT SIDE
+				std::set<tokens>* firstSet=&firstArray[grammar[i].rhs[0]]; //we take the FIRST of the RIGHT SIDE
 				int oldSize=destSet->size(); //check size before adding
 				for(std::set<tokens>::iterator it=firstSet->begin(); it!=firstSet->end();it++){//add the first to the left val first
 					destSet->insert(tokens(*it));
@@ -223,14 +227,14 @@ void compute_select(){
 				}
 		}
 	}
-
 	for (int i=0;i<NUMOFRULES;i++) {		//for all nonterminal
 			vec.push_back(selectArray[i]);
 	}
 	delete[] firstArray;
+	delete[] followArray;
+	delete[] selectArray;
 	//do not forget to delete
 	print_select(vec);
-	*/
 }
 
 void parser(){}
