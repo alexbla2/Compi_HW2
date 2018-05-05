@@ -40,7 +40,7 @@ octdig 		([0-7])
 true			return TRUE;//showToken("TRUE");
 false			return FALSE;//showToken("FALSE");
 ("+"|"-")?{digit}+|0x{hexdig}*|0o{octdig}*	return INTEGER;//showToken("INTEGER");
-(("+"|"-")?{digit}*"."{digit}*)|(("+"|"-")?{digit}*"."{digit}*e("+"|"-"){digit}+)|".inf"|".NaN" 	return REAL;//showToken("REAL");
+("+"|"-")?{digit}+"."{digit}*|("+"|"-")?{digit}*"."{digit}+|(("+"|"-")?{digit}*"."{digit}*e("+"|"-"){digit}+)|".inf"|".NaN" 	return REAL;//showToken("REAL");
 
 \' BEGIN(smpstring); yymore();
 <smpstring>[^']* yymore();
