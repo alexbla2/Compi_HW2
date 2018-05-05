@@ -1026,7 +1026,7 @@ printf("Error unclosed string\n");exit(0);
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(escape):
 #line 64 "lexer.lex"
-return EOF;//showToken("EOF"); exit(0);
+return EF;//showToken("EOF"); exit(0);
 	YY_BREAK
 case 31:
 /* rule 31 can match eol */
@@ -1037,7 +1037,7 @@ YY_RULE_SETUP
 case 32:
 YY_RULE_SETUP
 #line 66 "lexer.lex"
-printf("Error %s\n", yytext); exit(0);
+printf("ErrorX %s\n", yytext); exit(0);
 	YY_BREAK
 case 33:
 YY_RULE_SETUP

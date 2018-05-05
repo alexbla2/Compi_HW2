@@ -2,6 +2,7 @@
 #include <utility>
 #include <map>
 
+
 #define NUMOFVALS (EF+1)
 /**
  * determines which variables are nullable, i.e. can produce an empty word
@@ -19,8 +20,6 @@ bool aux_nullable(bool *array, std::vector<int>& vecG){
     }
     return true;
 }
-
-int yylex(); 
 
 // bool joinSets(std::set<tokens>* sourceSet,std::set<tokens>* destSet){
 // 	int oldSize=destSet->size();
@@ -291,33 +290,31 @@ int match(std::vector<int>* stack,tokens top, tokens t){
 //------------------------------------------------------------
 
 void parser(){
-	std::vector<int> stack;
-	stack.push_back(tokens(grammar[0].lhs)); //init: push S to stack
-	//--stack	
 	bool nullable[NUMOFVALS]={false};//check all nullable before 
 	std::set<tokens>* firstArray=new std::set<tokens>[NUMOFVALS]; //array of sets to copy
 	std::set<tokens>* followArray=new std::set<tokens>[NUMOFVALS]; //array of sets of FIRST
 	std::set<tokens>* selectArray=new std::set<tokens>[NUMOFRULES]; //array of sets of SELECT to copy (for each *rule*)
-	fillNullableArray(nullable);		//**fill the AFIS array**
-	fillFirstArray(firstArray,nullable);	//**fill the FIRST array**
-	fillFollowArray(followArray,firstArray,nullable);	//**fill the FOLLOW array**
-	fillSelectArray(selectArray,followArray,firstArray,nullable); //**fill the Select array**
+	//fillNullableArray(nullable);		//**fill the AFIS array**
+	//fillFirstArray(firstArray,nullable);	//**fill the FIRST array**
+	//fillFollowArray(followArray,firstArray,nullable);	//**fill the FOLLOW array**
+	//fillSelectArray(selectArray,followArray,firstArray,nullable); //**fill the Select array**
 	//------------
-	std::map<nonterminal, std::map<tokens, int> > Mtable;
-	buildMtable(selectArray,&Mtable);
-
+	//std::map<nonterminal, std::map<tokens, int> > Mtable;
+	// buildMtable(selectArray,&Mtable);
+	std::vector<int> stack;
+	stack.push_back((int)grammar[0].lhs); //init: push S to stack
 	tokens t;
 	bool loop=true;
 	int val;
 	int valid=0;
 	while(loop){
-		t=(tokens)yylex(); //get the next token
-		if(stack.size()==0){	//stack is empty
+		t=(tokens) yylex(); //get the next token
+		if(stack.size()==0){	//stack is empty 
 			if((tokens)t==EF){		//the end of the input - success!
 				std::cout << "Success" << std::endl;
 				loop=false;
 			}else{				//something went wrong..
-				std::cout << "Error" <<std::endl;
+				std::cout << "Error1" <<std::endl;
 				loop=false;
 			}
 		}else{		//Stack isn't empty
@@ -325,19 +322,19 @@ void parser(){
 			if(val > NONTERMINAL_ENUM_SIZE){ //val is terminal
 				valid=match(&stack,(tokens)val,t);
 				if(valid ==-1){
-					std::cout << "Error" <<std::endl;
+					std::cout << "Error2" <<std::endl;
 					loop=false;
 				}
 			}else{	//val is variable
-				valid=predict(&stack,&Mtable,(nonterminal)val,t);
+				//valid=predict(&stack,&Mtable,(nonterminal)val,t);
 				if(valid ==-1){
-					std::cout << "Error" <<std::endl;
+					std::cout << "Error3" <<std::endl;
 					loop=false;
 				}
 			}
 		}
 	}
-	delete[] firstArray;
-	delete[] followArray;
-	delete[] selectArray;
+	// delete[] firstArray;
+	// delete[] followArray;
+	// delete[] selectArray;
 }

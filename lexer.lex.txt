@@ -61,9 +61,9 @@ false			return FALSE;//showToken("FALSE");
 <string>[[:print:]] yymore();
 <string><<EOF>> printf("Error unclosed string\n");exit(0);
 
-<<EOF>> return EOF;//showToken("EOF"); exit(0);
+<<EOF>> return EF;//showToken("EOF"); exit(0);
 {newline}|{whitespace}	;
-.	printf("Error %s\n", yytext); exit(0);
+.	printf("ErrorX %s\n", yytext); exit(0);
 %%
 
 
