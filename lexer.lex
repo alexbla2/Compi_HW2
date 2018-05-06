@@ -36,7 +36,7 @@ octdig 		([0-7])
 ","	    return COMMA;//showToken("COMMA");
 "!!"{letter}+			return TYPE;//showToken("TYPE");
 
-\#.* //showToken("COMMENT");
+\#.* ;//showToken("COMMENT");
 true			return TRUE;//showToken("TRUE");
 false			return FALSE;//showToken("FALSE");
 ("+"|"-")?{digit}+|0x{hexdig}*|0o{octdig}*	return INTEGER;//showToken("INTEGER");
@@ -44,7 +44,7 @@ false			return FALSE;//showToken("FALSE");
 
 \' BEGIN(smpstring); yymore();
 <smpstring>[^']* yymore();
-<smpstring>\' return STRING;//showToken("STRING");BEGIN(0);
+<smpstring>\' BEGIN(0);return STRING;//showToken("STRING");
 <smpstring><<EOF>> printf("Error unclosed string\n");exit(0);
 
 {letter}+{alphaNum}* 	return VAL;//showToken("VAL");
@@ -55,7 +55,7 @@ false			return FALSE;//showToken("FALSE");
 <string>\\ BEGIN(escape);yymore();
 <escape>\\|\"|a|b|e|f|n|r|t|v|0|x{hexdig}{hexdig} BEGIN(string);yymore();
 <escape>. printf("Error undefined escape sequence %c\n",yytext[yyleng-1]);exit(0);
-<string>\" return STRING;//showToken("STRING");BEGIN(0);
+<string>\" BEGIN(0);return STRING;//showToken("STRING")
 <string>{newline} yymore();
 <string>{whitespace} yymore();
 <string>[[:print:]] yymore();
@@ -63,7 +63,7 @@ false			return FALSE;//showToken("FALSE");
 
 <<EOF>> return EF;//showToken("EOF"); exit(0);
 {newline}|{whitespace}	;
-.	printf("ErrorX %s\n", yytext); exit(0);
+.	printf("Error %s\n",yytext); exit(0);
 %%
 
 

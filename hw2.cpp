@@ -2,6 +2,7 @@
 #include <utility>
 #include <map>
 
+int sizeStack=0;
 
 #define NUMOFVALS (EF+1)
 /**
@@ -53,7 +54,11 @@ void fillNullableArray(bool *array){
 }
 
 //fills the FIRST array
-void fillFirstArray(std::set<tokens>* firstArray,bool *nullableArray){
+void fillFirstArray(std::vector<std::set<tokens> >& firstArray,bool *nullableArray){
+	for(int i=0; i<NUMOFVALS ; i++){
+		std::set<tokens> set;
+		firstArray.push_back((set));
+	}
 	bool changed=true;
 	for(int k=STARTSTRUCT; k<NUMOFVALS ; k++){
 		firstArray[k].insert(tokens(k));
@@ -92,7 +97,11 @@ void fillFirstArray(std::set<tokens>* firstArray,bool *nullableArray){
 }
 
 //fills the FOLLOW array
-void fillFollowArray(std::set<tokens>* followArray,std::set<tokens>* firstArray,bool *nullable){
+void fillFollowArray(std::vector<std::set<tokens> >& followArray,std::vector<std::set<tokens> >& firstArray,bool *nullable){
+	for(int i=0; i<NUMOFVALS ; i++){
+		std::set<tokens> set;
+		followArray.push_back((set));
+	}
 	followArray[grammar[0].lhs].insert(EF); //inserting $ to the first rule
 	bool changed=true;
 	while(changed){
@@ -137,7 +146,11 @@ void fillFollowArray(std::set<tokens>* followArray,std::set<tokens>* firstArray,
 	}
 }
 
-void fillSelectArray(std::set<tokens>* selectArray,std::set<tokens>* followArray,std::set<tokens>* firstArray,bool *nullable){
+void fillSelectArray(std::vector<std::set<tokens> >& selectArray,std::vector<std::set<tokens> >& followArray,std::vector<std::set<tokens> >& firstArray,bool *nullable){
+	for(int i=0; i<NUMOFRULES ; i++){
+		std::set<tokens> set;
+		selectArray.push_back((set));
+	}
 	bool changed=true;
 	while(changed){
 		changed=false;
@@ -192,77 +205,56 @@ void compute_nullable(){
 
 //----------------------------------------------------
 void compute_first(){ 
-
-	std::vector<std::set<tokens> > vec;	//vec to return
-	std::set<tokens>* array= new std::set<tokens>[NUMOFVALS]; //array of sets to copy
+	std::vector<std::set<tokens> > array;
+	//std::set<tokens>* array= new std::set<tokens>[NUMOFVALS]; //array of sets to copy
 	bool nullable[NUMOFVALS]={false};//check all nullable before 
 	fillNullableArray(nullable);		//**fill the AFIS array**
 	fillFirstArray(array,nullable);
-
-	for (int i=0;i<NONTERMINAL_ENUM_SIZE;i++) {		//for all nonterminal
-			vec.push_back(array[i]);
-	}
-	delete[] array;
-	print_first(vec);
+	print_first(array);
 }
 
 void compute_follow(){
-	std::vector<std::set<tokens> > vec;	//vec to return
-	std::set<tokens>* firstArray= new std::set<tokens>[NUMOFVALS]; //array of firsts
+	std::vector<std::set<tokens> > firstArray; //array of firsts
 	bool nullable[NUMOFVALS]={false};//check all nullable before 
 	bool changed=true;
 	fillNullableArray(nullable);		//**fill the AFIS array**
 	fillFirstArray(firstArray,nullable);
-	std::set<tokens>* followArray= new std::set<tokens>[NONTERMINAL_ENUM_SIZE]; //array of sets FOLLOW to copy from
+	std::vector<std::set<tokens> > followArray; //array of sets FOLLOW to copy from
 	fillFollowArray(followArray,firstArray,nullable);
-	for (int i=0;i<NONTERMINAL_ENUM_SIZE;i++) {		//for all nonterminal
-			vec.push_back(followArray[i]);
-	}
-	delete[] followArray;
-	delete[] firstArray;
-	print_follow(vec);
+	print_follow(followArray);
 }
 
 void compute_select(){
-	std::vector<std::set<tokens> > vec;	//vec to return
 	bool nullable[NUMOFVALS]={false};//check all nullable before 
-	std::set<tokens>* firstArray=new std::set<tokens>[NUMOFVALS]; //array of sets to copy
-	std::set<tokens>* followArray=new std::set<tokens>[NUMOFVALS]; //array of sets of FIRST
-	std::set<tokens>* selectArray=new std::set<tokens>[NUMOFRULES]; //array of sets of SELECT to copy (for each *rule*)
+	std::vector<std::set<tokens> > firstArray; //array of sets to copy
+	std::vector<std::set<tokens> > followArray; //array of sets of FIRST
+	std::vector<std::set<tokens> > selectArray; //array of sets of SELECT to copy (for each *rule*)
 	fillNullableArray(nullable);		//**fill the AFIS array**
 	fillFirstArray(firstArray,nullable);	//**fill the FIRST array**
 	fillFollowArray(followArray,firstArray,nullable);	//**fill the FOLLOW array**
 	fillSelectArray(selectArray,followArray,firstArray,nullable);
-	//------------
-	for (int i=0;i<NUMOFRULES;i++) {		//for all nonterminal
-			vec.push_back(selectArray[i]);
-	}
-	delete[] firstArray;
-	delete[] followArray;
-	delete[] selectArray;
-	print_select(vec);
+	print_select(selectArray);
 }
 
 //------------------------------------------------------------
 
-void buildMtable(std::set<tokens>* selectArray,std::map<nonterminal, std::map<tokens, int> >* Mtable){
+void buildMtable(std::vector<std::set<tokens> >& selectArray,std::map<nonterminal, std::map<tokens, int> >& Mtable){
 
 	for(int i=0;i<NONTERMINAL_ENUM_SIZE;i++){	//for each VAR(non terminal)
-		std::map<tokens, int> map = std::map<tokens, int>();
-		Mtable->insert(std::pair<nonterminal,std::map<tokens, int> > ((nonterminal)i,map));
+		std::map<tokens, int> map;
+		Mtable.insert(std::pair<nonterminal,std::map<tokens, int> > ((nonterminal)i,map));
 	}
 	for(int i=0;i<NUMOFRULES;i++){	//for each rule
-		std::map<nonterminal, std::map<tokens, int> >::iterator it1 = Mtable->find(grammar[i].lhs);
-		std::map<tokens, int> currentMap = it1->second;
+		std::map<nonterminal, std::map<tokens, int> >::iterator it1 = Mtable.find(grammar[i].lhs);
 		for(std::set<tokens>::iterator it = selectArray[i].begin(); it != selectArray[i].end(); it++){ //for each select member for the rule
-			currentMap.insert(std::pair<tokens,int>(*it,i));
+			it1->second.insert(std::pair<tokens,int>(*it,i));
 		}	
 	}
 }
 
-int predict(std::vector<int>* stack,std::map<nonterminal, std::map<tokens, int> >* Mtable,nonterminal X,tokens t){
+int predict(std::vector<int>& stack,std::map<nonterminal, std::map<tokens, int> >& Mtable,nonterminal X,tokens t){
 	int ruleNum;
-	std::map<nonterminal, std::map<tokens, int> >::iterator  it1 = Mtable->find(X);
+	std::map<nonterminal, std::map<tokens, int> >::iterator  it1 = Mtable.find(X);
 	std::map<tokens, int> currentMap = it1->second;
 	std::map<tokens, int>::iterator it= currentMap.find(t);
 	if(it==currentMap.end()){
@@ -270,17 +262,17 @@ int predict(std::vector<int>* stack,std::map<nonterminal, std::map<tokens, int> 
 	}else{
 		ruleNum=it->second; //number of the predicted rule
 	}
-	std::cout << ruleNum << std::endl; //---->rule number print!
-	stack->pop_back();
+	std::cout << (ruleNum+1) << std::endl; //---->rule number print!
+	stack.pop_back();
 	for(int i=grammar[ruleNum].rhs.size()-1;i>=0;i--){
-		stack->push_back(grammar[ruleNum].rhs[i]);
+		stack.push_back(grammar[ruleNum].rhs[i]);
 	}
 	return 0; //success
 }
 
-int match(std::vector<int>* stack,tokens top, tokens t){
+int match(std::vector<int>& stack,tokens top, tokens t){
 	if(top == t){
-		stack->pop_back();
+		stack.pop_back();
 		return 0; //success
 	}else{
 		return -1; //error
@@ -291,50 +283,55 @@ int match(std::vector<int>* stack,tokens top, tokens t){
 
 void parser(){
 	bool nullable[NUMOFVALS]={false};//check all nullable before 
-	std::set<tokens>* firstArray=new std::set<tokens>[NUMOFVALS]; //array of sets to copy
-	std::set<tokens>* followArray=new std::set<tokens>[NUMOFVALS]; //array of sets of FIRST
-	std::set<tokens>* selectArray=new std::set<tokens>[NUMOFRULES]; //array of sets of SELECT to copy (for each *rule*)
-	//fillNullableArray(nullable);		//**fill the AFIS array**
-	//fillFirstArray(firstArray,nullable);	//**fill the FIRST array**
-	//fillFollowArray(followArray,firstArray,nullable);	//**fill the FOLLOW array**
-	//fillSelectArray(selectArray,followArray,firstArray,nullable); //**fill the Select array**
+	std::vector<std::set<tokens> > firstArray;
+	std::vector<std::set<tokens> > followArray; //array of sets of FIRST
+	std::vector<std::set<tokens> > selectArray; //array of sets of SELECT to copy (for each *rule*)
+	fillNullableArray(nullable);		//**fill the AFIS array**
+	fillFirstArray(firstArray,nullable);	//**fill the FIRST array**
+	fillFollowArray(followArray,firstArray,nullable);	//**fill the FOLLOW array**
+	fillSelectArray(selectArray,followArray,firstArray,nullable); //**fill the Select array**
 	//------------
-	//std::map<nonterminal, std::map<tokens, int> > Mtable;
-	// buildMtable(selectArray,&Mtable);
-	std::vector<int> stack;
+	//tokens input[]={LLIST,INTEGER,COMMA,REAL,COMMA,STRING,COMMA,RLIST,EF};
+	//int index=0;
+	
+
+	std::map<nonterminal, std::map<tokens, int> > Mtable;
+	buildMtable(selectArray,Mtable);
+	std::vector<int>* stack_ptr = new std::vector<int>();
+	std::vector<int> stack=*stack_ptr;
+	//nonterminal top=grammar[0].lhs;
 	stack.push_back((int)grammar[0].lhs); //init: push S to stack
-	tokens t;
+	sizeStack++;
+	tokens t=(tokens)yylex();//input[index];
 	bool loop=true;
-	int val;
 	int valid=0;
 	while(loop){
-		t=(tokens) yylex(); //get the next token
+		int val;
 		if(stack.size()==0){	//stack is empty 
 			if((tokens)t==EF){		//the end of the input - success!
 				std::cout << "Success" << std::endl;
 				loop=false;
 			}else{				//something went wrong..
-				std::cout << "Error1" <<std::endl;
+				std::cout << "Syntax error" <<std::endl;
 				loop=false;
 			}
 		}else{		//Stack isn't empty
-			val = stack[stack.size()]; //"top"
+			val = stack[stack.size()-1]; //"top"
 			if(val > NONTERMINAL_ENUM_SIZE){ //val is terminal
-				valid=match(&stack,(tokens)val,t);
+				valid=match(stack,(tokens)val,t);
 				if(valid ==-1){
-					std::cout << "Error2" <<std::endl;
+					std::cout << "Syntax error" <<std::endl;
 					loop=false;
 				}
+				t=(tokens)yylex();//input[++index];
 			}else{	//val is variable
-				//valid=predict(&stack,&Mtable,(nonterminal)val,t);
+				valid=predict(stack,Mtable,(nonterminal)val,t);
 				if(valid ==-1){
-					std::cout << "Error3" <<std::endl;
+					std::cout << "Syntax error" <<std::endl;
 					loop=false;
 				}
 			}
 		}
 	}
-	// delete[] firstArray;
-	// delete[] followArray;
-	// delete[] selectArray;
+	delete stack_ptr;
 }
