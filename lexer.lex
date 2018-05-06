@@ -43,9 +43,12 @@ false			return FALSE;//showToken("FALSE");
 ("+"|"-")?{digit}+"."{digit}*|("+"|"-")?{digit}*"."{digit}+|(("+"|"-")?{digit}*"."{digit}*e("+"|"-"){digit}+)|".inf"|".NaN" 	return REAL;//showToken("REAL");
 
 \' BEGIN(smpstring); yymore();
-<smpstring>[^']* yymore();
-<smpstring>\' BEGIN(0);return STRING;//showToken("STRING");
+<smpstring>\' BEGIN(0);return STRING; //showToken("STRING"); <smpstring>[^']* yymore();
+<smpstring>[[:print:]] yymore();
+<smpstring>{newline} yymore();
+<smpstring>{whitespace} yymore();
 <smpstring><<EOF>> printf("Error unclosed string\n");exit(0);
+<smpstring>. printf("Error %c\n",yytext[yyleng-1]); exit(0);
 
 {letter}+{alphaNum}* 	return VAL;//showToken("VAL");
 "&"{letter}+	return DECLARATION;//showToken("DECLARATION");
@@ -60,6 +63,7 @@ false			return FALSE;//showToken("FALSE");
 <string>{whitespace} yymore();
 <string>[[:print:]] yymore();
 <string><<EOF>> printf("Error unclosed string\n");exit(0);
+<string>. printf("Error %c\n",yytext[yyleng-1]); exit(0);
 
 <<EOF>> return EF;//showToken("EOF"); exit(0);
 {newline}|{whitespace}	;
